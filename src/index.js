@@ -8,40 +8,69 @@ const ErrorMessage = () => (
 );
 
 const App = () => {
-  const [RemoteModule, setRemoteModule] = useState(null);
+  const [RemoteModule1, setRemoteModule1] = useState(null);
   const [hasError, setHasError] = useState(false);
+  const [RemoteModule2, setRemoteModule2] = useState(null);
+  const [hasError2, setHasError2] = useState(false);
 
-  async function init() {
+  async function init1() {
     try {
-      const remoteModule = await loadRemoteModule({
-        url: "http://localhost:8081/remoteEntry.js",
+      const remoteModule1 = await loadRemoteModule({
+        url: "http://localhost:9001/remoteEntry.js",
         scope: "microfrontend",
         module: "./Microfrontend",
       });
-      setRemoteModule(() => remoteModule);
+      setRemoteModule1(() => remoteModule1);
     } catch (error) {
-      console.error("Failed to load remote module", error);
-      setHasError(true);
+      console.error("Failed to load remote module ", error);
+      setHasError1(true);
     }
   }
 
-  // Load the remote module when the component mounts
+  async function init2() {
+    try {
+      const remoteModule2 = await loadRemoteModule({
+        url: "http://localhost:9002/remoteEntry.js",
+        scope: "microfrontend",
+        module: "./Microfrontend",
+      });
+      setRemoteModule2(() => remoteModule2);
+    } catch (error) {
+      console.error("Failed to load remote module 2", error);
+      setHasError2(true);
+    }
+  }
+
   React.useEffect(() => {
-    init();
+    init1();
+    init2();
   }, []);
 
-  const MFE1 = RemoteModule ? RemoteModule.default : null;
+  const MFE1 = RemoteModule1 ? RemoteModule1.default : null;
+  const MFE2 = RemoteModule2 ? RemoteModule2.default : null;
 
   return (
     <div>
       <h1>Container</h1>
-      {hasError ? (
-        <ErrorMessage />
-      ) : MFE1 ? (
-        <MFE1 />
-      ) : (
-        "Loading remote module..."
-      )}
+      <div>
+        {hasError ? (
+          <ErrorMessage />
+        ) : MFE1 ? (
+          <MFE1 />
+        ) : (
+          "Loading remote module..."
+        )}
+      </div>
+
+      <div>
+        {hasError2 ? (
+          <ErrorMessage />
+        ) : MFE2 ? (
+          <MFE2 />
+        ) : (
+          "Loading remote module..."
+        )}
+      </div>
     </div>
   );
 };
