@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { loadRemoteModule } from "oleng-mfe-utils";
-const ErrorMessage = () => <div>Failed to load remote module</div>;
+const ErrorMessage = () => (
+  <div>
+    <h2>Failed to load remote module</h2>
+  </div>
+);
 
 const App = () => {
   const [RemoteModule, setRemoteModule] = useState(null);
@@ -26,16 +30,18 @@ const App = () => {
     init();
   }, []);
 
-  if (hasError) {
-    return <ErrorMessage />;
-  }
-
   const MFE1 = RemoteModule ? RemoteModule.default : null;
 
   return (
     <div>
       <h1>Container</h1>
-      <div>{MFE1 ? <MFE1 /> : "Loading remote module..."}</div>
+      {hasError ? (
+        <ErrorMessage />
+      ) : MFE1 ? (
+        <MFE1 />
+      ) : (
+        "Loading remote module..."
+      )}
     </div>
   );
 };
