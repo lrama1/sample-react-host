@@ -1,25 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import ReactDOM from "react-dom";
-import { withMicrofrontend } from "./utils/utils";
-
-const MFE1 = withMicrofrontend({
-  url: "http://localhost:9001/remoteEntry.js",
-  scope: "microfrontend",
-  module: "./Microfrontend",
-});
-
-const MFE2 = withMicrofrontend({
-  url: "http://localhost:9002/remoteEntry.js",
-  scope: "microfrontend",
-  module: "./Microfrontend",
-});
+import { loadRemoteModule } from "oleng-mfe-utils";
 
 function App() {
+  const [RemoteComponent, setRemoteComponent] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    loadRemoteModule({
+      url: "http://localhost:9002/remoteEntry.js",
+      scope: "microfrontend",
+      module: "./Microfrontend",
+    })
+      .then((module) => {
+        setRemoteComponent(() => module.default);
+      })
+      .catch((err) => {
+        console.error("Error loading remote module:", err);
+        setError(err);
+      });
+  }, []);
+
   return (
     <div>
       <h1>Container</h1>
-      <MFE1 />
-      <MFE2 />
+      {error ? (
+        <div>Error loading remote component: {error.message}</div>
+      ) : RemoteComponent ? (
+        <Suspense fallback={<div>Loading...</div>}>
+          <RemoteComponent />
+        </Suspense>
+      ) : (
+        <div>Loading Remote Component...</div>
+      )}
     </div>
   );
 }
